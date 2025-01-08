@@ -9,9 +9,10 @@ Prompt:
 */
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
 	"aimake/providers"
+	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 // QueryCmd represents the query command
