@@ -4,10 +4,13 @@ package cmd
 Prompt:
 - Use github.com/spf13/cobra
 - Create an external command var called CleanCmd.
-- This command takes no arguments.
-- It scans the current directory and its subdirectories for files matching the "*.go" filename pattern.
-- For each file found it performs the following actions (implemented as a separate, private function):
-  0. Print the path of the file.
+- By default this command takes one or more filenames. This is indicated when running --help as [FILES].
+  For each filename provided this way, a function called cleanFile() is called with the filename as argument.
+- Alternatively it takes one argument: --all (alias -a), in which case no filenames are allowed.
+  In this case It scans the current directory and its subdirectories for files matching the "*.go" filename pattern and runs cleanFile() against each.
+- If no arguments are provided, print help for the argument.
+
+- cleanFile() function performs the following actions:
   1. Find the FIRST comment block in the file that has the string "Prompt:" as its first contents (ignore whitelines).
   2. Find the end of that comment block.
   3. Delete anything past that comment block.
@@ -26,23 +29,39 @@ import (
 
 // CleanCmd represents the clean command
 var CleanCmd = &cobra.Command{
-	Use:   "clean",
-	Short: "Scan and clean all .go files in the current directory and subdirectories",
+	Use:   "clean [FILES]",
+	Short: "Clean specified .go files or all .go files in the current directory and subdirectories",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		all, _ := cmd.Flags().GetBool("all")
+		if all {
+			if len(args) > 0 {
+				fmt.Println("Error: --all flag cannot be used with filenames")
+				return
+			}
+			err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if filepath.Ext(path) == ".go" {
+					cleanFile(path)
+				}
+				return nil
+			})
 			if err != nil {
-				return err
+				fmt.Println("Error:", err)
 			}
-			if filepath.Ext(path) == ".go" {
-				fmt.Println(path)
-				cleanFile(path)
+		} else if len(args) == 0 {
+			cmd.Help()
+		} else {
+			for _, filename := range args {
+				cleanFile(filename)
 			}
-			return nil
-		})
-		if err != nil {
-			fmt.Println("Error:", err)
 		}
 	},
+}
+
+func init() {
+	CleanCmd.Flags().BoolP("all", "a", false, "Clean all .go files in the current directory and subdirectories")
 }
 
 func cleanFile(path string) {
