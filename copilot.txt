@@ -1,1 +1,0 @@
-Near the top of current file is a comment containing a prompt. Append it after the contents of prompt.txt and use the combined prompt to generate and/or update the code inside the current file.

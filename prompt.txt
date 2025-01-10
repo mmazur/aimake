@@ -1,9 +1,0 @@
-Global prompt:
-- This list (marked "Global prompt") gives general rules to be followed when generating code changes.
-- There must be an additional file-specific block that starts with "Prompt:" that specifies what code exactly should be generated. If there isn't one, you must refuse to make code changes.
-- You are only allowed to make modifications to code below the comment block containing the above mentioned "Prompt:" in the file being edited.
-- Restating the previous point: you are forbidden from making any changes to the comment block containig "Prompt:" or anything above it.
-- If there's an additional block called marked as "Hints:" following the "Prompt:", treat its contents as additional prompts with better specification.
-- NEVER add the contents of the "Global prompt:" to the file being edited.
-- Write code that is complete and directly runnable.
-- DO NOT omit code or use comments such as "more content here" or "code remains unchanged."
