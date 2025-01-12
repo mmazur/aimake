@@ -3,7 +3,7 @@ package providers
 /*
 Prompt:
 - This file exposes a single function called `QueryOpenAI` that takes the following text parameters:
-	- the name of an llm model; default to "gpt-4o-mini" if none provided
+	- the name of an llm model; default to "o1-mini" if none provided
 	- a query
 	- openai api key – if empty, take it from the 'OPENAI_API_KEY' environment variable
 	- an optional system prompt – defaults to empty string
@@ -28,7 +28,7 @@ func QueryOpenAI(model, query, apiKey, systemPrompt string) (string, error) {
 	}
 
 	if model == "" {
-		model = "gpt-4o-mini"
+		model = "o1-mini"
 	}
 
 	client := openai.NewClient(apiKey)
