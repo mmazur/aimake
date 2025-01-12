@@ -2,7 +2,16 @@
 Make AI make code  
 … while you just tell it where and how.
 
-## This code is terrible
+## Demo
+
+1. Make sure you have `OPENAI_API_KEY` in your env.
+2. Clone, `go build`.
+3. `./aimake clean cmd/clean.go`
+4. `git diff` to see the code that just went missing.
+5. `./aimake gen cmd/clean.go` to see it come back in some form.
+6. (And maybe another `./aimake gen cmd/clean.go` to give the llm another stab at it.)
+
+### This code is terrible
 
 Yes.
 
