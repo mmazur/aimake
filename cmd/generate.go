@@ -8,19 +8,18 @@ Prompt:
 - By default this command takes one or more filenames. This is indicated when running --help as [FILES].
 - Alternatively it takes one argument: --all (alias -a), in which case no filenames are allowed.
   In this case it scans the current directory and its subdirectories for files matching the "*.go" filename pattern.
-- If no arguments are provided, print help for the argument.
+- If no arguments are provided, print help for the command.
 - With the available file paths (whether provided or discovered), the following logic is executed:
   pre, filePrompt, post, err = utils.GoParseFile(path)
-  prompt = promptPrefix + filePrompt
-  generateFile(path, pre, prompt, post)
+  generateFile(path, pre, filePrompt, post)
 
-Specifications:
+Function specifications:
 generateFile(path, pre, prompt, post) executes the following logic:
-  content = prompt + "\n\nCODE BLOCK START\n\n" + pre + post + "\n\nCODE BLOCK END"
+  content = promptPrefix + prompt + "\n\nCODE BLOCK START\n" + pre + post + "\nCODE BLOCK END"
   use `content` as `prompt` for providers.QueryOpenAI()
   If first line of response starts with ```, strip it.
   If last line starts with ```, strip it as well.
-  Overwrite file given in `path` with prompt + '\n' + response.
+  Overwrite file given in `path` with: "/*\nPrompt:\n" + prompt + "\n*" + "/\n" + response.
 */
 
 import (
@@ -29,6 +28,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -36,11 +36,11 @@ import (
 const promptPrefix = `
 I need to write computer code. Do not add any explanations before or after the code. Output only code.
 
-General requirements for me code are:
-Write code that is complete and directly runnable.
-DO NOT omit code or use comments such as "more content here" or "code remains unchanged."
-NEVER change anything above the line that contains the string "END IMMUTABLE CODE BLOCK"
-Do not unnecessarily remove any comments or code.
+General requirements for my code are:
+ Write code that is complete and directly runnable.
+ DO NOT omit code or use comments such as "more content here" or "code remains unchanged."
+ NEVER change anything above the line that contains the string "END IMMUTABLE CODE BLOCK" if such a line exists.
+ Do not unnecessarily remove any comments or code.
 
 The code itself must do the following:
 `
@@ -67,8 +67,7 @@ var GenerateCmd = &cobra.Command{
 						fmt.Println("Error parsing file:", err)
 						return nil
 					}
-					prompt := promptPrefix + filePrompt
-					generateFile(path, pre, prompt, post)
+					generateFile(path, pre, filePrompt, post)
 				}
 				return nil
 			})
@@ -84,8 +83,7 @@ var GenerateCmd = &cobra.Command{
 					fmt.Println("Error parsing file:", err)
 					continue
 				}
-				prompt := promptPrefix + filePrompt
-				generateFile(filename, pre, prompt, post)
+				generateFile(filename, pre, filePrompt, post)
 			}
 		}
 	},
@@ -96,11 +94,27 @@ func init() {
 }
 
 func generateFile(path, pre, prompt, post string) {
-	content := prompt + "\n\nCODE BLOCK START\n\n" + pre + post + "\n\nCODE BLOCK END"
-	response, err := providers.QueryOpenAI("gpt-4o-mini", content, "", "")
+	content := promptPrefix + prompt + "\n\nCODE BLOCK START\n" + pre + post + "\nCODE BLOCK END"
+	response, err := providers.QueryOpenAI("o1-mini", content, "", "")
 	if err != nil {
 		fmt.Println("Error querying OpenAI:", err)
 		return
 	}
-	fmt.Println(response)
+
+	// Strip leading and trailing ``` from response
+	responseLines := strings.Split(response, "\n")
+	if len(responseLines) > 0 && strings.HasPrefix(responseLines[0], "```") {
+		responseLines = responseLines[1:]
+	}
+	if len(responseLines) > 0 && strings.HasPrefix(responseLines[len(responseLines)-1], "```") {
+		responseLines = responseLines[:len(responseLines)-1]
+	}
+	response = strings.Join(responseLines, "\n")
+
+	// Overwrite the file with the new content
+	newContent := "/*\nPrompt:\n" + prompt + "\n*" + "/\n" + response
+	err = os.WriteFile(path, []byte(newContent), 0644)
+	if err != nil {
+		fmt.Println("Error writing file:", err)
+	}
 }

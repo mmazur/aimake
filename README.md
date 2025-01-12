@@ -40,6 +40,7 @@ What happens if you AI-rewrite the existing prompts and then AI-generate fresh c
 - [ ] Support other models (anthropic, self-hosted, etc.)
 - [ ] Come up with automatic evaluation of generated code
 - [ ] Once automatic evaluation works, come up with automatic iterative optimization (generate code in multiple ways, automatically figure out which seems like the best one) 
+- [ ] Automated multi-shot if first try doesn't build/work (related to previous point)
 - [ ] Automatic dependency analysis and interface extraction for `generate`
   - Example: `generate main.go` notices it depends on a function in `cmd.go`, that function declaration is extracted and injected into the prompt for generating `main.go`
 - [ ] Full codebase analysis for `generate --all` that can figure out the file generation order (starts with standalone files with no external dependencies)
