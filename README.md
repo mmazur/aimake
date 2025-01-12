@@ -2,6 +2,10 @@
 Make AI make code  
 … while you just tell it where and how.
 
+## This code is terrible
+
+Yes.
+
 ## Usage
 
 ### Making edits
@@ -18,8 +22,9 @@ Make AI make code
 
 ## Contributing
 
-- Until we get to Milestone 2, it won't be possible to develop aimake using aimake. What I'm doing instead is using the prompt in `copilot.txt` together with GitHub Copilot to simulate the `generate` feature.
+- Until we get to Milestone 2, it won't be possible to fully develop aimake using aimake. What I'm doing instead is using the prompt in `copilot.txt` together with GitHub Copilot to simulate the `generate` feature.
 - PRs must contain prompts that generated the code. Human-only code edits would be cheating.
+  - You can pretend code changes have been fully generated using the attached prompt. I won't notice.
 
 ## License
 
@@ -37,6 +42,8 @@ What happens if you AI-rewrite the existing prompts and then AI-generate fresh c
 - [ ] `generate` is advanced enough to regenerate all files in this project, including ones with external dependencies (like `main.go`)
 
 ## Feature Ideas
+- [ ] Multi-shot `gen` (-i arg?); feeds the prompt+code N times with same or slightly modified prompts
+  - Defaults to >=2 for more reliable `gen`?
 - [ ] Support other models (anthropic, self-hosted, etc.)
 - [ ] Come up with automatic evaluation of generated code
 - [ ] Once automatic evaluation works, come up with automatic iterative optimization (generate code in multiple ways, automatically figure out which seems like the best one) 
