@@ -31,7 +31,7 @@ Yes.
 
 ## Contributing
 
-- Until we get to Milestone 2, it won't be possible to fully develop aimake using aimake. What I'm doing instead is using the prompt in `copilot.txt` together with GitHub Copilot to simulate the `generate` feature.
+- Until we get to Milestone 2, it won't be possible to fully develop aimake using aimake. What I'm doing instead is using the function prompts/definitions in each file and feeding that to GH Copilot.
 - PRs must contain prompts that generated the code. Human-only code edits would be cheating.
   - You can pretend code changes have been fully generated using the attached prompt. I won't notice.
 

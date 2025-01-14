@@ -1,1 +1,0 @@
-Near the top of the current file is a comment containing a prompt. Combine it with the contents of global.txt file (global.txt comes first) and use the combined prompt to generate and/or update the code inside the current file. Do not actually write the combined prompt to file, just use it as basis for code generation.
