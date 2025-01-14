@@ -1,7 +1,6 @@
-package main
-
 /*
-Prompt:
+Package "main".
+
 - This file is the entrypoint to the code and contains the main executable function.
 - The app name is "aimake".
 - The app is a CLI tool that parses commandline arguments using github.com/spf13/cobra library.
@@ -11,6 +10,7 @@ Prompt:
 Hints:
 - Don't forget to define and initiate the root cobra Cmd.
 */
+package main
 
 import (
 	"fmt"

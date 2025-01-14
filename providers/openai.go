@@ -1,17 +1,19 @@
-package providers
-
 /*
+Package "providers".
+
 Prompt:
 - This file exposes a single function called `QueryOpenAI` that takes the following text parameters:
-	- the name of an llm model; default to "o1-mini" if none provided
-	- a query
-	- openai api key – if empty, take it from the 'OPENAI_API_KEY' environment variable
-	- an optional system prompt – defaults to empty string
+  - the name of an llm model; default to "o1-mini" if none provided
+  - a query
+  - openai api key – if empty, take it from the 'OPENAI_API_KEY' environment variable
+  - an optional system prompt – defaults to empty string
+
 - The implementation is to use the github.com/sashabaranov/go-openai library.
 
 Implementation notes:
 - Trying github.com/openai/openai-go failed, seems LLMs do not know how to use that library.
 */
+package providers
 
 import (
 	"context"

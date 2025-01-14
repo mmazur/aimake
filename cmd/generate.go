@@ -1,26 +1,28 @@
-package cmd
-
 /*
-Prompt:
-- Use github.com/spf13/cobra
+Package "cmd".
+
+- Uses github.com/spf13/cobra
 - Create an external command var called GenerateCmd.
 - Full name of the command is 'generate', but it also is available as an alias 'gen'.
 - By default this command takes one or more filenames. This is indicated when running --help as [FILES].
 - Alternatively it takes one argument: --all (alias -a), in which case no filenames are allowed.
-  In this case it scans the current directory and its subdirectories for files matching the "*.go" filename pattern.
+In this case it scans the current directory and its subdirectories for files matching the "*.go" filename pattern.
 - If no arguments are provided, print help for the command.
 - With the available file paths (whether provided or discovered), the following logic is executed:
-  pre, filePrompt, post, err = utils.GoParseFile(path)
-  generateFile(path, pre, filePrompt, post)
+filePrompt, content, err = utils.ParseGoFile(path)
+generateFile(path, filePrompt, content)
 
 Function specifications:
-generateFile(path, pre, prompt, post) executes the following logic:
-  content = promptPrefix + prompt + "\n\nCODE BLOCK START\n" + pre + post + "\nCODE BLOCK END"
-  use `content` as `prompt` for providers.QueryOpenAI()
-  If first line of response starts with ```, strip it.
-  If last line starts with ```, strip it as well.
-  Overwrite file given in `path` with: "/*\nPrompt:\n" + prompt + "\n*" + "/\n" + response.
+generateFile(path, filePrompt, fileContent) executes the following logic
+
+	if fileContent is empty: content = promptPrefix + filePrompt
+	else: content =  promptPrefix + filePrompt + "\n\nCODE BLOCK START\n" + fileContent + "\nCODE BLOCK END"
+	use `content` as `prompt` for providers.QueryOpenAI()
+	If first line of response starts with ```, strip it.
+	If last line starts with ```, strip it as well.
+	Overwrite file given in `path` with: "/*\n" + filePrompt + "\n*" + "/\n" + response.
 */
+package cmd
 
 import (
 	"aimake/providers"
@@ -33,14 +35,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const promptPrefix = `
-I need to write computer code. Do not add any explanations before or after the code. Output only code.
+const promptPrefix = `I need to write computer code. Do not add any explanations before or after the code. Output only code.
 
 General requirements for my code are:
  Write code that is complete and directly runnable.
  DO NOT omit code or use comments such as "more content here" or "code remains unchanged."
- NEVER change anything above the line that contains the string "END IMMUTABLE CODE BLOCK" if such a line exists.
  Do not unnecessarily remove any comments or code.
+ Never generate a docstring for the package.
 
 The code itself must do the following:
 `
@@ -62,12 +63,12 @@ var GenerateCmd = &cobra.Command{
 					return err
 				}
 				if filepath.Ext(path) == ".go" {
-					pre, filePrompt, post, err := utils.GoParseFile(path)
+					filePrompt, content, err := utils.ParseGoFile(path)
 					if err != nil {
 						fmt.Println("Error parsing file:", err)
 						return nil
 					}
-					generateFile(path, pre, filePrompt, post)
+					generateFile(path, filePrompt, content)
 				}
 				return nil
 			})
@@ -78,12 +79,12 @@ var GenerateCmd = &cobra.Command{
 			cmd.Help()
 		} else {
 			for _, filename := range args {
-				pre, filePrompt, post, err := utils.GoParseFile(filename)
+				filePrompt, content, err := utils.ParseGoFile(filename)
 				if err != nil {
 					fmt.Println("Error parsing file:", err)
 					continue
 				}
-				generateFile(filename, pre, filePrompt, post)
+				generateFile(filename, filePrompt, content)
 			}
 		}
 	},
@@ -93,8 +94,16 @@ func init() {
 	GenerateCmd.Flags().BoolP("all", "a", false, "Generate all .go files in the current directory and subdirectories")
 }
 
-func generateFile(path, pre, prompt, post string) {
-	content := promptPrefix + prompt + "\n\nCODE BLOCK START\n" + pre + post + "\nCODE BLOCK END"
+func generateFile(path, filePrompt, fileContent string) {
+	var content string
+	if fileContent == "" {
+		content = promptPrefix + filePrompt
+	} else {
+		content = promptPrefix + filePrompt + "\n\nCODE BLOCK START\n" + fileContent + "\nCODE BLOCK END"
+	}
+	//fmt.Println(content)
+	//return
+
 	response, err := providers.QueryOpenAI("o1-mini", content, "", "")
 	if err != nil {
 		fmt.Println("Error querying OpenAI:", err)
@@ -112,7 +121,7 @@ func generateFile(path, pre, prompt, post string) {
 	response = strings.Join(responseLines, "\n")
 
 	// Overwrite the file with the new content
-	newContent := "/*\nPrompt:\n" + prompt + "\n*" + "/\n" + response
+	newContent := "/*\n" + filePrompt + "\n*" + "/\n" + response
 	err = os.WriteFile(path, []byte(newContent), 0644)
 	if err != nil {
 		fmt.Println("Error writing file:", err)

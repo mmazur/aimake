@@ -1,12 +1,12 @@
-package cmd
-
 /*
-Prompt:
-- Use github.com/spf13/cobra
+Package "cmd'."
+
+- Uses github.com/spf13/cobra
 - Create an external command var called QueryCmd.
 - This command runs the providers.QueryOpenAI() function.
 - It takes the same parameters as that function, but makes sure the optional parameters are optional.
 */
+package cmd
 
 import (
 	"aimake/providers"

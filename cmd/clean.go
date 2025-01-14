@@ -1,7 +1,8 @@
 /*
-Prompt:
-  - This is `package cmd`
-  - Use github.com/spf13/cobra
+Package "cmd".
+
+Uses github.com/spf13/cobra.
+
   - Create an external command var called CleanCmd.
   - By default this command takes one or more filenames. This is indicated when running --help as [FILES].
     For each filename provided this way, a function called cleanFile() is called with the filename as argument.
@@ -9,15 +10,16 @@ Prompt:
     In this case It scans the current directory and its subdirectories for files matching the "*.go" filename pattern and runs cleanFile() against each.
   - If no arguments are provided, print help for the argument.
 
-- cleanFile() function performs the following actions:
- 1. Find the FIRST comment block in the file that has the string "Prompt:" as its first contents (on the same line or on the next line).
- 2. Find the end of that comment block.
- 3. Delete anything past that comment block.
- 4. Overwrite the original file with the new contents.
+Functions and variables:
+CleanCmd is a &cobra.Command
 
-Hints:
-- Don't bother supporting // style comments.
-- There's no such thing as strings.NewScanner
+cleanFile takes one parameter `path`, which is a path to a golang file.
+Only thing it returns is an optional error parameter.
+Its logic is:
+1. Find the FIRST comment block in the file that has the string "Prompt:" as its first contents (on the same line or on the next line).
+2. Find the end of that comment block.
+3. Delete anything past that comment block.
+4. Overwrite the original file with the new contents.
 */
 package cmd
 
